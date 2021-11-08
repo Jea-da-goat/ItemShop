@@ -50,7 +50,7 @@ public class Utils {
     }
 
     public static void sendhelp(Player p) {
-        Utils.sendmsg2(p, "&f========&3&l[ &f아이템상점 도움말 &3&l]&f========\n" +
+        Utils.sendmsg(p, "&f========&3&l[ &f아이템상점 도움말 &3&l]&f========\n" +
                 "/아이템상점 목록 &8&l:&r 등록된 모든 상점의 리스트를 보여준다\n" +
                 "/아이템상점 생성 &7<이름> &8&l:&r 새 상점을 생성\n" +
                 "/아이템상점 라인 &7<이름> <라인갯수> &8&l:&r 해당 상점의 라인 갯수를 설정\n" +
