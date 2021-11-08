@@ -1,0 +1,9 @@
+name: ItemShop
+version: '${project.version}'
+main: com.itndev.itemshop.Main
+api-version: 1.16
+description: 20cps autoclicker this is
+depend: [ Vault ]
+commands:
+  아이템상점:
+    description: fuck you
