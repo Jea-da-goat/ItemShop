@@ -12,6 +12,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 public class listener implements Listener {
 
     @EventHandler
@@ -29,7 +32,7 @@ public class listener implements Listener {
         }
     }
     @EventHandler
-    public void onInventoryClick(InventoryClickEvent e) {
+    public void onInventoryClick(InventoryClickEvent e) throws ExecutionException, InterruptedException {
         if(e.getView().getTitle().contains("[상점]")) {
             e.setCancelled(true);
             if(e.getCurrentItem().getType().equals(Material.AIR)) {
@@ -42,52 +45,26 @@ public class listener implements Listener {
 
                 ItemStack needed = Storage.shoplineneeded.get(name + String.valueOf(e.getRawSlot() + 1))[0].clone();
                 int neededamount = Storage.shoplineneededamount.get(name + String.valueOf(e.getRawSlot() + 1));
+                CompletableFuture<Boolean> has = Utils.hasEnoughItem(p, needed, neededamount);
+                CompletableFuture<Boolean> has64 = Utils.hasEnoughItem(p, needed, neededamount * 64);
                 Boolean bought = false;
                 if(e.getClick().equals(ClickType.LEFT)) {
-                    for(ItemStack it : p.getInventory().getContents()) {
-                        if(it != null) {
-                            if(it.getType() != Material.AIR) {
-                                if (it.isSimilar(needed) && it.getAmount() >= neededamount) {
-
-                                    it.setAmount(it.getAmount() - neededamount);
-                                    bought = true;
-                                    break;
-                                }
-                            }
-                        }
+                    if(has.get()) {
+                        Utils.RemoveItem(p, needed, neededamount);
+                        bought = true;
                     }
                     if(bought) {
-                        p.getInventory().addItem(Storage.shoplineresult.get(name + String.valueOf(e.getRawSlot() + 1))[0].clone());
+                        p.getInventory().addItem(needed);
                     } else {
                         Utils.sendmsg(p, "아이템이 부족합니다");
                     }
                 } else if(e.getClick().equals(ClickType.SHIFT_LEFT)) {
-                    int itamount = 0;
-                    for(ItemStack it : p.getInventory().getContents()) {
-                        if(it != null) {
-                            if(it.getType() != Material.AIR) {
-                                if (it.isSimilar(needed)) {
-                                    itamount = itamount + it.getAmount();
-                                }
-                            }
-                        }
+                    if(has64.get()) {
+                        Utils.RemoveItem(p, needed, neededamount * 64);
+                        bought = true;
                     }
-                    if(itamount >= neededamount * 64) {
-                        for(ItemStack it : p.getInventory().getContents()) {
-                            if(it.isSimilar(needed)) {
-                                if(itamount >= it.getAmount()) {
-                                    itamount = itamount - it.getAmount();
-                                    it.setAmount(0);
-                                } else {
-                                    it.setAmount(it.getAmount() - itamount);
-                                    itamount = 0;
-                                }
-                                if(itamount == 0) {
-                                    break;
-                                }
-                            }
-                        }
-                        ItemStack result = Storage.shoplineresult.get(name + String.valueOf(e.getRawSlot() + 1))[0].clone();
+                    if(bought) {
+                        ItemStack result = needed;
                         result.setAmount(result.getAmount() * 64);
                         p.getInventory().addItem(result);
                     } else {

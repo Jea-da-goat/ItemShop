@@ -1,12 +1,14 @@
 package com.itndev.itemshop;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Utils {
     public static void sendmsg(Player p, String message) {
@@ -62,4 +64,58 @@ public class Utils {
                 "/아이템상점 가격제거 &7<이름> <칸번호> &8&l:&r 해당 상점에 있는 해당 칸번호에 있는 가격을 제거\n" +
                 "/아이템상점 도움말 &8&l:&r 해당 도움말을 보여줌\n");
     }
+
+    public static CompletableFuture<Boolean> hasEnoughItem(Player p, ItemStack item, int amount) {
+        CompletableFuture<Boolean> futureboolean = new CompletableFuture<>();
+        new Thread( () -> {
+            item.setAmount(1);
+            int temp = amount;
+            for(ItemStack slot : p.getInventory().getContents()) {
+                if(slot != null) {
+                    if (slot.getType() != Material.AIR) {
+                        if(slot.isSimilar(item)) {
+                            if(temp <= slot.getAmount()) {
+                                futureboolean.complete(true);
+                                temp = 0;
+                                break;
+                            } else {
+                                temp = temp - slot.getAmount();
+                            }
+                        }
+                    }
+                }
+
+            }
+            if(temp > 0) {
+                futureboolean.complete(false);
+            }
+        }).start();
+        return futureboolean;
+    }
+
+    public static void RemoveItem(Player p, ItemStack needed, int amount) {
+        int tempamount = amount;
+        int tempitem = 0;
+        for(ItemStack item : p.getInventory().getContents()) {
+            if(tempamount >= 1) {
+                if(item != null) {
+                    if (item.getType() != Material.AIR) {
+                        if (item.isSimilar(needed)) {
+                            tempitem = item.getAmount();
+                            if (item.getAmount() < tempamount) {
+                                item.setAmount(0);
+                                tempamount = tempamount - tempitem;
+                            } else {
+                                item.setAmount(tempitem - tempamount);
+                                tempamount = 0;
+                            }
+                        }
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
 }
