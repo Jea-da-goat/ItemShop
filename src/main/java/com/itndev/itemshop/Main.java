@@ -27,6 +27,9 @@ public final class Main extends JavaPlugin {
 
         Storage.createlocalstorage();
         Storage.saveStorage();
+        if(Storage.getStorage().contains("issellshop.")) {
+            Storage.onRestoreissellshopData();
+        }
         if(Storage.getStorage().contains("shopline.")) {
             Storage.onRestoreshoplineData();
         }
@@ -69,6 +72,9 @@ public final class Main extends JavaPlugin {
         }
         if(!Storage.shoplineprice.isEmpty()) {
             Storage.onSaveshoplinepriceData();
+        }
+        if(!Storage.issellshop.isEmpty()) {
+            Storage.onSaveissellshopData();
         }
         Storage.saveStorage();
     }

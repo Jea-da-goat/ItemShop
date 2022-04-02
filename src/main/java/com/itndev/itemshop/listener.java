@@ -35,16 +35,18 @@ public class listener implements Listener {
     public void onInventoryClick(InventoryClickEvent e) throws ExecutionException, InterruptedException {
         if(e.getView().getTitle().contains("[상점]")) {
             e.setCancelled(true);
-            if(e.getCurrentItem().getType().equals(Material.AIR)) {
+            if(e.getCurrentItem() == null ||e.getCurrentItem().getType().equals(Material.AIR)) {
                 return;
             }
             String name = e.getView().getTitle().split(" ")[1];
-            if(Storage.shoplineneeded.containsKey(name + String.valueOf(e.getRawSlot() + 1))) {
+            String key = name + String.valueOf(e.getRawSlot() + 1);
+            if(Storage.shoplineneeded.containsKey(key)) {
                 Player p = (Player) e.getWhoClicked();
 
 
-                ItemStack needed = Storage.shoplineneeded.get(name + String.valueOf(e.getRawSlot() + 1))[0].clone();
-                int neededamount = Storage.shoplineneededamount.get(name + String.valueOf(e.getRawSlot() + 1));
+                ItemStack needed = Storage.shoplineneeded.get(key).clone()[0];
+                int neededamount = Storage.shoplineneededamount.get(key);
+                ItemStack resultitem = Storage.shoplineresult.get(key).clone()[0];
                 CompletableFuture<Boolean> has = Utils.hasEnoughItem(p, needed, neededamount);
                 CompletableFuture<Boolean> has64 = Utils.hasEnoughItem(p, needed, neededamount * 64);
                 Boolean bought = false;
@@ -54,7 +56,7 @@ public class listener implements Listener {
                         bought = true;
                     }
                     if(bought) {
-                        p.getInventory().addItem(needed);
+                        p.getInventory().addItem(resultitem);
                     } else {
                         Utils.sendmsg(p, "아이템이 부족합니다");
                     }
@@ -64,37 +66,60 @@ public class listener implements Listener {
                         bought = true;
                     }
                     if(bought) {
-                        ItemStack result = needed;
-                        result.setAmount(result.getAmount() * 64);
-                        p.getInventory().addItem(result);
+                        resultitem.setAmount(resultitem.getAmount() * 64);
+                        p.getInventory().addItem(resultitem);
                     } else {
                         Utils.sendmsg(p, "아이템이 부족합니다");
                     }
                 }
-            } else if(Storage.shoplineprice.containsKey(name + String.valueOf(e.getRawSlot() + 1))) {
-                double price = Storage.shoplineprice.get(name + String.valueOf(e.getRawSlot() + 1));
+            } else if(Storage.shoplineprice.containsKey(key)) {
                 Player p = (Player) e.getWhoClicked();
                 OfflinePlayer op = Bukkit.getOfflinePlayer(p.getUniqueId());
-                ItemStack result = Storage.shoplineresult.get(name + String.valueOf(e.getRawSlot() + 1))[0].clone();
+                double price = Storage.shoplineprice.get(key);
                 double bal = Main.getEconomy().getBalance(op);
-                if(e.getClick().equals(ClickType.LEFT)) {
-                    if(bal > price) {
-                        Main.getEconomy().withdrawPlayer(op, price);
-                        Utils.Additem(p, result, 1);
-                    } else {
-                        Utils.sendmsg(p, "돈이 부족합니다 &7(" + String.valueOf(price - bal + 1) + "원)");
+                ItemStack result = Storage.shoplineresult.get(key).clone()[0];
+                CompletableFuture<Boolean> has = Utils.hasEnoughItem(p, result, 1);
+                CompletableFuture<Boolean> has64 = Utils.hasEnoughItem(p, result, 64);
+                if(Storage.issellshop.containsKey(key)) {
+                    //ItemStack result = Storage.shoplineresult.get(key).clone()[0];
+                    if(e.getClick().equals(ClickType.LEFT)) {
+                        if(has.get()) {
+                            Main.getEconomy().depositPlayer(op, price);
+                            Utils.RemoveItem(p, result, 1);//Utils.Additem(p, result, 1);
+                        } else {
+                            Utils.sendmsg(p, "아이템이 부족합니다");
+                        }
+                    } else if(e.getClick().equals(ClickType.SHIFT_LEFT)) {
+                        if(has64.get()) {
+                            Main.getEconomy().depositPlayer(op, price*64);
+                            Utils.RemoveItem(p, result, 64);
+                        } else {
+                            Utils.sendmsg(p, "아이템이 부족합니다");
+                        }
                     }
-                } else if(e.getClick().equals(ClickType.SHIFT_LEFT)) {
-                    if(bal > price*64) {
-                        Main.getEconomy().withdrawPlayer(op, price*64);
-                        Utils.Additem(p, result, 64);
-                    } else {
-                        Utils.sendmsg(p, "돈이 부족합니다 &7(" + String.valueOf(price*64 - bal + 1) + "원)");
+                } else {
+                    //double price = Storage.shoplineprice.get(key);
+                    //Player p = (Player) e.getWhoClicked();
+                    //OfflinePlayer op = Bukkit.getOfflinePlayer(p.getUniqueId());
+
+                    //double bal = Main.getEconomy().getBalance(op);
+                    if(e.getClick().equals(ClickType.LEFT)) {
+                        if(bal > price) {
+                            Main.getEconomy().withdrawPlayer(op, price);
+                            Utils.Additem(p, result, 1);
+                        } else {
+                            Utils.sendmsg(p, "돈이 부족합니다 &7(" + String.valueOf(price - bal + 1) + "원)");
+                        }
+                    } else if(e.getClick().equals(ClickType.SHIFT_LEFT)) {
+                        if(bal > price*64) {
+                            Main.getEconomy().withdrawPlayer(op, price*64);
+                            Utils.Additem(p, result, 64);
+                        } else {
+                            Utils.sendmsg(p, "돈이 부족합니다 &7(" + String.valueOf(price*64 - bal + 1) + "원)");
+                        }
                     }
                 }
             }
-
-
         }
     }
 }

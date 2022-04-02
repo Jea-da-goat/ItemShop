@@ -60,10 +60,10 @@ public class Commands implements CommandExecutor {
 
                             if(Storage.shoplineresult.containsKey(args[1] + k)) {
                                 ItemStack itemtemp = Storage.shoplineresult.get(args[1] + k)[0];
-                                if (itemtemp != null && !itemtemp.getType().equals(Material.AIR) && itemtemp.hasItemMeta()) {
+                                if (itemtemp != null && !itemtemp.getType().equals(Material.AIR)) {
                                     ItemStack item = itemtemp.clone();
                                     ItemStack needed;
-                                    if(Storage.shoplineneeded.containsKey(args[1] + k)) {
+                                    if (Storage.shoplineneeded.containsKey(args[1] + k)) {
                                         needed = Storage.shoplineneeded.get(args[1] + k)[0].clone();
                                         String neededname;
                                         if (needed != null && needed.hasItemMeta()) {
@@ -81,24 +81,37 @@ public class Commands implements CommandExecutor {
                                         lores[3] = "&3&l[좌클릭 : 아이템 구매 / 쉬프트 + 좌클릭 : 아이템 64개 구매]";
                                         item1.setItemMeta(Utils.AddLore(itemmeta, lores));
                                         inv.setItem(c, item1.clone());
-                                    } else if(Storage.shoplineprice.containsKey(args[1] + k)){
-                                        double price = Storage.shoplineprice.get(args[1] + k);
-                                        ItemStack item1 = item.clone();
-                                        ItemMeta itemmeta = item1.getItemMeta();
-                                        String lores[] = new String[4];
+                                    } else if (Storage.shoplineprice.containsKey(args[1] + k)) {
+                                        if (Storage.issellshop.containsKey(args[1] + k)) {
+                                            double price = Storage.shoplineprice.get(args[1] + k);
+                                            ItemStack item1 = item.clone();
+                                            ItemMeta itemmeta = item1.getItemMeta();
+                                            String lores[] = new String[4];
 
-                                        lores[0] = "";
-                                        lores[1] = "&3&l[가격] &r&l: &7&l[ " + price + "원 &7&l]";
-                                        lores[2] = "";
-                                        lores[3] = "&3&l[좌클릭 : 아이템 구매 / 쉬프트 + 좌클릭 : 아이템 64개 구매]";
-                                        item1.setItemMeta(Utils.AddLore(itemmeta, lores));
-                                        inv.setItem(c, item1.clone());
+                                            lores[0] = "";
+                                            lores[1] = "&3&l[판매가격] &r&l: &7&l[ " + price + "원 &7&l]";
+                                            lores[2] = "";
+                                            lores[3] = "&3&l[좌클릭 : 아이템 판매 / 쉬프트 + 좌클릭 : 아이템 64개 판매]";
+                                            item1.setItemMeta(Utils.AddLore(itemmeta, lores));
+                                            inv.setItem(c, item1.clone());
+                                        } else {
+                                            double price = Storage.shoplineprice.get(args[1] + k);
+                                            ItemStack item1 = item.clone();
+                                            ItemMeta itemmeta = item1.getItemMeta();
+                                            String lores[] = new String[4];
+
+                                            lores[0] = "";
+                                            lores[1] = "&3&l[구매가격] &r&l: &7&l[ " + price + "원 &7&l]";
+                                            lores[2] = "";
+                                            lores[3] = "&3&l[좌클릭 : 아이템 구매 / 쉬프트 + 좌클릭 : 아이템 64개 구매]";
+                                            item1.setItemMeta(Utils.AddLore(itemmeta, lores));
+                                            inv.setItem(c, item1.clone());
+                                        }
+
                                     } else {
                                         ItemStack item1 = item.clone();
                                         inv.setItem(c, item1.clone());
                                     }
-
-
 
                                     //lore.add("");
                                     //lore.add("&3&l[필요한 아이템] &r&l: &7&l[ " + needed.getItemMeta().getDisplayName() + " &7&l]");
@@ -237,6 +250,28 @@ public class Commands implements CommandExecutor {
                         }
                     } else {
                         Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
+                    }
+                } else if(args[0].equalsIgnoreCase("판매토글")) {
+                    if(args.length < 3) {
+                        Utils.sendhelp(p);
+                    }
+                    String shopname = args[1];
+                    String linenumb = args[2];
+                    String key = shopname + linenumb;
+                    if(!Storage.shopline.containsKey(shopname)) {
+                        Utils.sendmsg(p, "해당 상점 " + shopname + " 은 존재하지 않습니다");
+                        return false;
+                    }
+                    if(Storage.shoplineprice.containsKey(key)) {
+                        if(Storage.issellshop.containsKey(key)) {
+                            Storage.issellshop.remove(key);
+                            Utils.sendmsg(p, "해당 상점 " + shopname + "의 " + linenumb + "번을 구매상점으로 설정했습니다");
+                        } else {
+                            Storage.issellshop.put(key, true);
+                            Utils.sendmsg(p, "해당 상점 " + shopname + "의 " + linenumb + "번을 판매상점으로 설정했습니다");
+                        }
+                    } else {
+                        Utils.sendmsg(p, "해당 상점 " + shopname + "의 " + linenumb + "번에는 가격이 설정되어 있지 않습니다");
                     }
                 } else if(args[1].equalsIgnoreCase("도움말")) {
                     Utils.sendhelp(p);
