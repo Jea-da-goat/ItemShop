@@ -2,6 +2,7 @@ package com.itndev.itemshop;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
@@ -18,7 +19,7 @@ public class Storage {
 
     public static HashMap<String, ItemStack[]> shoplineresult = new HashMap<>();
 
-    public static HashMap<String, ItemStack[]> shoplineneeded = new HashMap<>();
+    public static HashMap<String, Inventory> shoplineneeded = new HashMap<>();
 
     public static HashMap<String, Integer> shoplineneededamount = new HashMap<>();
 
@@ -113,16 +114,20 @@ public class Storage {
         });
     }
     public static void onSaveshoplineneededData() {
-        for (Map.Entry<String, ItemStack[]> entry : Storage.shoplineneeded.entrySet())
-            Storage.getStorage().set("shoplineneeded." + (String)entry.getKey(), entry.getValue());
-
-
+        for (Map.Entry<String, Inventory> entry : Storage.shoplineneeded.entrySet()) {
+            Storage.getStorage().set("shoplineneeded." + (String) entry.getKey(), BukkitSerialization.toBase64(entry.getValue()));
+        }
         //saveStorage();
     }
     public static void onRestoreshoplineneededData() {
         Storage.getStorage().getConfigurationSection("shoplineneeded.").getKeys(false).forEach(key -> {
-            ItemStack[] v = ((List<ItemStack>) Storage.getStorage().get("shoplineneeded." + key)).toArray(new ItemStack[1]);
-            Storage.shoplineneeded.put(key, v);
+            Inventory v = null;
+            try {
+                v = BukkitSerialization.fromBase64(Storage.getStorage().getString("shoplineneeded." + key));
+                Storage.shoplineneeded.put(key, v);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
     public static void onSaveshoplineneededamountData() {

@@ -9,9 +9,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -20,8 +25,8 @@ public class listener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
         //Player p = (Player) e.getPlayer();
-        if(e.getView().getTitle().contains("상점-")) {
-            String name = e.getView().getTitle().split("-")[1];
+        if(e.getView().getTitle().contains("상점:=:")) {
+            String name = e.getView().getTitle().split(":=:")[1];
             for(int c = 0; c < e.getInventory().getSize(); c++) {
                 int num = c + 1;
                 ItemStack item = e.getInventory().getItem(c);
@@ -29,6 +34,9 @@ public class listener implements Listener {
                 items[0] = item;
                 Storage.shoplineresult.put(name + String.valueOf(num), items);
             }
+        } else if(e.getView().getTitle().contains("필요아이템:=:")) {
+            String name = e.getView().getTitle().split(":=:")[1];
+            Storage.shoplineneeded.put(name, e.getView().getTopInventory());
         }
     }
     @EventHandler
@@ -43,29 +51,41 @@ public class listener implements Listener {
             if(Storage.shoplineneeded.containsKey(key)) {
                 Player p = (Player) e.getWhoClicked();
 
-
-                ItemStack needed = Storage.shoplineneeded.get(key).clone()[0];
-                int neededamount = Storage.shoplineneededamount.get(key);
+                ArrayList<CompletableFuture<Boolean>> hasLIST = new ArrayList<>();
+                ArrayList<CompletableFuture<Boolean>> has64LIST = new ArrayList<>();
+                HashMap<ItemStack, Integer> map = Utils.toMap(Storage.shoplineneeded.get(key));
+                for(Map.Entry entry : map.entrySet()) {
+                    hasLIST.add(Utils.hasEnoughItem(p, (ItemStack) entry.getKey(), (Integer) entry.getValue()));
+                    has64LIST.add(Utils.hasEnoughItem(p, (ItemStack) entry.getKey(), ((Integer) entry.getValue()) * 64));
+                }
                 ItemStack resultitem = Storage.shoplineresult.get(key).clone()[0];
-                CompletableFuture<Boolean> has = Utils.hasEnoughItem(p, needed, neededamount);
-                CompletableFuture<Boolean> has64 = Utils.hasEnoughItem(p, needed, neededamount * 64);
-                Boolean bought = false;
+                Boolean bought = true;
                 if(e.getClick().equals(ClickType.LEFT)) {
-                    if(has.get()) {
-                        Utils.RemoveItem(p, needed, neededamount);
-                        bought = true;
+                    for(CompletableFuture<Boolean> might : hasLIST) {
+                        if(!might.get()) {
+                            bought = false;
+                           break;
+                        }
                     }
                     if(bought) {
+                        for(Map.Entry entry : map.entrySet()) {
+                            Utils.RemoveItem(p, (ItemStack) entry.getKey(), (Integer) entry.getValue());
+                        }
                         p.getInventory().addItem(resultitem);
                     } else {
                         Utils.sendmsg(p, "아이템이 부족합니다");
                     }
                 } else if(e.getClick().equals(ClickType.SHIFT_LEFT)) {
-                    if(has64.get()) {
-                        Utils.RemoveItem(p, needed, neededamount * 64);
-                        bought = true;
+                    for(CompletableFuture<Boolean> might : has64LIST) {
+                        if(!might.get()) {
+                            bought = false;
+                            break;
+                        }
                     }
                     if(bought) {
+                        for(Map.Entry entry : map.entrySet()) {
+                            Utils.RemoveItem(p, (ItemStack) entry.getKey(), (Integer) entry.getValue());
+                        }
                         resultitem.setAmount(resultitem.getAmount() * 64);
                         p.getInventory().addItem(resultitem);
                     } else {

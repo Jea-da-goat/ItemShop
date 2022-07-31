@@ -1,6 +1,8 @@
 package com.itndev.itemshop;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Commands implements CommandExecutor {
@@ -62,23 +65,26 @@ public class Commands implements CommandExecutor {
                                 ItemStack itemtemp = Storage.shoplineresult.get(args[1] + k)[0];
                                 if (itemtemp != null && !itemtemp.getType().equals(Material.AIR)) {
                                     ItemStack item = itemtemp.clone();
-                                    ItemStack needed;
                                     if (Storage.shoplineneeded.containsKey(args[1] + k)) {
-                                        needed = Storage.shoplineneeded.get(args[1] + k)[0].clone();
-                                        String neededname;
-                                        if (needed != null && needed.hasItemMeta()) {
-                                            neededname = needed.getItemMeta().getDisplayName();
-                                        } else {
-                                            neededname = needed.getType().name();
-                                        }
+                                        HashMap<ItemStack, Integer> map = Utils.toMap(Storage.shoplineneeded.get(args[1] + k));
                                         ItemStack item1 = item.clone();
                                         ItemMeta itemmeta = item1.getItemMeta();
-                                        String lores[] = new String[4];
+                                        String lores[] = new String[3 + map.size()];
 
                                         lores[0] = "";
-                                        lores[1] = "&3&l[필요한 아이템] &r&l: &7&l[ " + neededname + " &7&l/ " + Storage.shoplineneededamount.get(args[1] + k) + "개 &7&l]";
-                                        lores[2] = "";
-                                        lores[3] = "&3&l[좌클릭 : 아이템 구매 / 쉬프트 + 좌클릭 : 아이템 64개 구매]";
+                                        int weeknow = 1;
+                                        for(ItemStack maptem : map.keySet()) {
+                                            String neededname;
+                                            if(maptem.hasItemMeta() && maptem.getItemMeta().hasDisplayName()) {
+                                                neededname = maptem.getItemMeta().getDisplayName();
+                                            } else {
+                                                neededname = maptem.getType().name();
+                                            }
+                                            lores[weeknow] = "&3&l[필요한 아이템] &r&l: &7&l[ " + neededname + "&r &7&l/ " + map.get(maptem) + "개 &7&l]";
+                                            weeknow++;
+                                        }
+                                        lores[map.size() + 1] = "";
+                                        lores[map.size() + 2] = "&3&l[좌클릭 : 아이템 구매 / 쉬프트 + 좌클릭 : 아이템 64개 구매]";
                                         item1.setItemMeta(Utils.AddLore(itemmeta, lores));
                                         inv.setItem(c, item1.clone());
                                     } else if (Storage.shoplineprice.containsKey(args[1] + k)) {
@@ -140,7 +146,7 @@ public class Commands implements CommandExecutor {
                     }
 
                 } else if(args[0].equalsIgnoreCase("재료")) {
-                    if(args.length < 4) {
+                    if(args.length < 3) {
                         Utils.sendhelp(p);
                         return false;
                     }
@@ -149,11 +155,11 @@ public class Commands implements CommandExecutor {
                             int lines = Storage.shopline.get(args[1]);
                             if (lines > 0) {
                                 if (Integer.valueOf(args[2]) <= lines * 9) {
-                                    ItemStack[] items = new ItemStack[1];
-                                    items[0] = p.getInventory().getItemInMainHand().clone();
-                                    Storage.shoplineneeded.put(args[1] + args[2], items);
-                                    Storage.shoplineneededamount.put(args[1] + args[2], Integer.valueOf(args[3]));
-                                    Utils.sendmsg(p, "재료를 " + p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() + " " + args[3] + "개로 설정했습니다");
+                                    Inventory inv = Bukkit.createInventory(null, 54, "필요아이템:=:" + args[1] + args[2]);
+                                    if(Storage.shoplineneeded.containsKey(args[1] + args[2])) {
+                                        inv.setContents(Storage.shoplineneeded.get(args[1] + args[2]).getContents());
+                                    }
+                                    p.openInventory(inv);
                                 } else {
                                     Utils.sendmsg(p, "해당 슬롯은 상점에 존재하지 않습니다.");
                                 }
@@ -174,7 +180,7 @@ public class Commands implements CommandExecutor {
                     }
                     if(Storage.shopline.containsKey(args[1]) && !Storage.shopline.get(args[1]).equals(0)) {
                         int lines = Storage.shopline.get(args[1]);
-                        Inventory inv = Bukkit.createInventory(null, lines * 9, "상점-" + args[1]);
+                        Inventory inv = Bukkit.createInventory(null, lines * 9, "상점:=:" + args[1]);
 
                         for(int c = 0; c < lines * 9; c++) {
                             int k = c + 1;

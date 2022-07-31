@@ -3,10 +3,12 @@ package com.itndev.itemshop;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -92,6 +94,21 @@ public class Utils {
             }
         }).start();
         return futureboolean;
+    }
+
+    public static HashMap<ItemStack, Integer> toMap(Inventory inv) {
+        HashMap<ItemStack, Integer> neededmap = new HashMap<>();
+        for(ItemStack item : inv.getContents()) {
+            if(item != null && item.getType() != Material.AIR) {
+                int amount = item.getAmount();
+                item.setAmount(1);
+                if (neededmap.containsKey(item)) {
+                    amount = amount + neededmap.get(item);
+                }
+                neededmap.put(item, amount);
+            }
+        }
+        return neededmap;
     }
 
     public static void RemoveItem(Player p, ItemStack needed, int amount) {
