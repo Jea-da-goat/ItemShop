@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -96,8 +97,8 @@ public class Utils {
         return futureboolean;
     }
 
-    public static HashMap<ItemStack, Integer> toMap(Inventory inv) {
-        HashMap<ItemStack, Integer> neededmap = new HashMap<>();
+    public static LinkedHashMap<ItemStack, Integer> toMap(Inventory inv) {
+        LinkedHashMap<ItemStack, Integer> neededmap = new LinkedHashMap<>();
         for(ItemStack item : inv.getContents()) {
             if(item != null && item.getType() != Material.AIR) {
                 int amount = item.getAmount();

@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class Commands implements CommandExecutor {
@@ -66,7 +67,9 @@ public class Commands implements CommandExecutor {
                                 if (itemtemp != null && !itemtemp.getType().equals(Material.AIR)) {
                                     ItemStack item = itemtemp.clone();
                                     if (Storage.shoplineneeded.containsKey(args[1] + k)) {
-                                        HashMap<ItemStack, Integer> map = Utils.toMap(Storage.shoplineneeded.get(args[1] + k));
+                                        Inventory tempinv = Bukkit.createInventory(null, 54, "temp");
+                                        tempinv.setContents(Storage.shoplineneeded.get(args[1] + k).getContents().clone());
+                                        LinkedHashMap<ItemStack, Integer> map = Utils.toMap(tempinv);
                                         ItemStack item1 = item.clone();
                                         ItemMeta itemmeta = item1.getItemMeta();
                                         String lores[] = new String[3 + map.size()];

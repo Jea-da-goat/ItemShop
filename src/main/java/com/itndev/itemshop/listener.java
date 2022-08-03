@@ -53,7 +53,9 @@ public class listener implements Listener {
 
                 ArrayList<CompletableFuture<Boolean>> hasLIST = new ArrayList<>();
                 ArrayList<CompletableFuture<Boolean>> has64LIST = new ArrayList<>();
-                HashMap<ItemStack, Integer> map = Utils.toMap(Storage.shoplineneeded.get(key));
+                Inventory inv = Bukkit.createInventory(null, 54, "temp");
+                inv.setContents(Storage.shoplineneeded.get(key).getContents().clone());
+                HashMap<ItemStack, Integer> map = Utils.toMap(inv);
                 for(Map.Entry entry : map.entrySet()) {
                     hasLIST.add(Utils.hasEnoughItem(p, (ItemStack) entry.getKey(), (Integer) entry.getValue()));
                     has64LIST.add(Utils.hasEnoughItem(p, (ItemStack) entry.getKey(), ((Integer) entry.getValue()) * 64));
