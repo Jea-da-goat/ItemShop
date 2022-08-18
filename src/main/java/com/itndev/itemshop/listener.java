@@ -34,9 +34,11 @@ public class listener implements Listener {
                 items[0] = item;
                 Storage.shoplineresult.put(name + String.valueOf(num), items);
             }
+            Cache.Refresh(name);
         } else if(e.getView().getTitle().contains("필요아이템:=:")) {
             String name = e.getView().getTitle().split(":=:")[1];
             Storage.shoplineneeded.put(name, e.getView().getTopInventory());
+            Cache.Refresh(name);
         }
     }
     @EventHandler

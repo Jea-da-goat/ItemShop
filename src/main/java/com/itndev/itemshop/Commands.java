@@ -12,10 +12,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class Commands implements CommandExecutor {
 
@@ -56,7 +53,7 @@ public class Commands implements CommandExecutor {
                         return false;
                     }
                     if(Storage.shopline.containsKey(args[1]) && !Storage.shopline.get(args[1]).equals(0)) {
-                        int lines = Storage.shopline.get(args[1]);
+                        /*int lines = Storage.shopline.get(args[1]);
                         Inventory inv = Bukkit.createInventory(null, lines * 9, "[상점] " + args[1]);
 
                         for(int c = 0; c < lines * 9; c++) {
@@ -132,7 +129,8 @@ public class Commands implements CommandExecutor {
 
                         }
 
-                        p.openInventory(inv);
+                        p.openInventory(inv);*/
+                        p.openInventory(Objects.requireNonNull(Cache.getShop(args[1])));
                     } else {
                         Utils.sendmsg(p, "해당 상점은 존재하지 않거나 설정이 되있지 않습니다");
                     }
@@ -144,6 +142,7 @@ public class Commands implements CommandExecutor {
                     if(Storage.shopline.containsKey(args[1])) {
                         Storage.shopline.put(args[1], Integer.valueOf(args[2]));
                         Utils.sendmsg(p, "상점 " + args[1] + "의 라인 갯수를 " + args[2] + "로 설정했습니다");
+                        Cache.Refresh(args[1]);
                     } else {
                         Utils.sendmsg(p, "존재하지 않는 상점입니다");
                     }
@@ -206,6 +205,7 @@ public class Commands implements CommandExecutor {
                         } else {
                             Utils.sendmsg(p, "이미 해당 슬롯 " + args[2] + " 은 재료가 추가되어 있습니다");
                         }
+                        Cache.Refresh(args[1]);
                     } else {
                         Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
                     }
@@ -221,6 +221,7 @@ public class Commands implements CommandExecutor {
                         } else {
                             Utils.sendmsg(p, "해당 슬롯 " + args[2] + " 번에는 가격이 존재하지 않습니다");
                         }
+                        Cache.Refresh(args[1]);
                     } else {
                         Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
                     }
@@ -239,6 +240,7 @@ public class Commands implements CommandExecutor {
                             Storage.shoplineneededamount.remove(key);
                         }
                         Storage.shopline.remove(args[1]);
+                        Cache.removeShop(args[1]);
                         Utils.sendmsg(p, "성공적으로 상점 " + args[1] + " 을 삭제했습니다");
                     } else {
                         Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
@@ -257,6 +259,7 @@ public class Commands implements CommandExecutor {
                         } else {
                             Utils.sendmsg(p, "존재하지 않는 재료입니다");
                         }
+                        Cache.Refresh(args[1]);
                     } else {
                         Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
                     }
@@ -282,6 +285,7 @@ public class Commands implements CommandExecutor {
                     } else {
                         Utils.sendmsg(p, "해당 상점 " + shopname + "의 " + linenumb + "번에는 가격이 설정되어 있지 않습니다");
                     }
+                    Cache.Refresh(args[1]);
                 } else if(args[1].equalsIgnoreCase("도움말")) {
                     Utils.sendhelp(p);
                 } else {
