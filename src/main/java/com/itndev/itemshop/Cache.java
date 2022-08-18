@@ -47,7 +47,7 @@ public class Cache {
                             LinkedHashMap<ItemStack, Integer> map = Utils.toMap(tempinv);
                             ItemStack item1 = item.clone();
                             ItemMeta itemmeta = item1.getItemMeta();
-                            String lores[] = new String[3 + map.size()];
+                            String lores[] = new String[3 + 1 + map.size()];
 
                             lores[0] = "";
                             int weeknow = 1;
@@ -63,6 +63,7 @@ public class Cache {
                             }
                             lores[map.size() + 1] = "";
                             lores[map.size() + 2] = "&3&l[좌클릭 : 아이템 구매 / 쉬프트 + 좌클릭 : 아이템 64개 구매]";
+                            lores[map.size() + 3] = "&3&l[우클릭 : 필요한 아이템 목록 보기]";
                             item1.setItemMeta(Utils.AddLore(itemmeta, lores));
                             inv.setItem(c, item1.clone());
                         } else if (Storage.shoplineprice.containsKey(ShopName + k)) {

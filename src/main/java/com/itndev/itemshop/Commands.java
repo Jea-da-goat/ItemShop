@@ -157,7 +157,7 @@ public class Commands implements CommandExecutor {
                             int lines = Storage.shopline.get(args[1]);
                             if (lines > 0) {
                                 if (Integer.valueOf(args[2]) <= lines * 9) {
-                                    Inventory inv = Bukkit.createInventory(null, 54, "필요아이템:=:" + args[1] + args[2]);
+                                    Inventory inv = Bukkit.createInventory(null, 27, "필요아이템:=:" + args[1] + args[2]);
                                     if(Storage.shoplineneeded.containsKey(args[1] + args[2])) {
                                         inv.setContents(Storage.shoplineneeded.get(args[1] + args[2]).getContents());
                                     }

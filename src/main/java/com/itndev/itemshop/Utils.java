@@ -21,6 +21,18 @@ public class Utils {
         p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
 
+    public static String getItemName(ItemStack item) {
+        if(item == null || item.getType() == Material.AIR) {
+            return "";
+        }
+        if(item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+            return item.getItemMeta().getDisplayName();
+        } else {
+            return item.getType().name();
+        }
+    }
+
+
     public static ItemMeta AddLore(ItemMeta item, String[] lores) {
         for(int c = 0; c < lores.length; c++) {
             List<String> lore = new ArrayList<>();

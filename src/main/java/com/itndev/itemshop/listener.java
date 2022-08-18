@@ -1,6 +1,7 @@
 package com.itndev.itemshop;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -13,14 +14,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class listener implements Listener {
+
+    private static HashMap<Player, String> beforeinventory = new HashMap<>();
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
@@ -55,7 +55,7 @@ public class listener implements Listener {
 
                 ArrayList<CompletableFuture<Boolean>> hasLIST = new ArrayList<>();
                 ArrayList<CompletableFuture<Boolean>> has64LIST = new ArrayList<>();
-                Inventory inv = Bukkit.createInventory(null, 54, "temp");
+                Inventory inv = Bukkit.createInventory(null, 36, ChatColor.translateAlternateColorCodes('&', "[재료] " + Utils.getItemName(e.getCurrentItem())));
                 inv.setContents(Storage.shoplineneeded.get(key).getContents().clone());
                 HashMap<ItemStack, Integer> map = Utils.toMap(inv);
                 for(Map.Entry entry : map.entrySet()) {
@@ -64,7 +64,24 @@ public class listener implements Listener {
                 }
                 ItemStack resultitem = Storage.shoplineresult.get(key).clone()[0];
                 Boolean bought = true;
-                if(e.getClick().equals(ClickType.LEFT)) {
+                if(e.getClick().equals(ClickType.RIGHT)) {
+                    ItemStack ArrowReturn = new ItemStack(Material.ARROW);
+                    ItemMeta arrowmeta = ArrowReturn.getItemMeta();
+                    arrowmeta.setDisplayName(Utils.colorize("&c&l돌아가기"));
+                    List<String> list = new ArrayList<>();
+                    list.add(name);
+                    arrowmeta.setLore(list);
+                    ArrowReturn.setItemMeta(arrowmeta);
+                    ItemStack Air = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
+                    ItemMeta airmeta = Air.getItemMeta();
+                    airmeta.setDisplayName("");
+                    Air.setItemMeta(airmeta);
+                    inv.setItem(27, ArrowReturn);
+                    for(int i = 28; i <= 35; i++) {
+                        inv.setItem(i, Air);
+                    }
+                    p.openInventory(inv);
+                } else  if(e.getClick().equals(ClickType.LEFT)) {
                     for(CompletableFuture<Boolean> might : hasLIST) {
                         if(!might.get()) {
                             bought = false;
@@ -140,6 +157,19 @@ public class listener implements Listener {
                             Utils.Additem(p, result, 64);
                         } else {
                             Utils.sendmsg(p, "돈이 부족합니다 &7(" + String.valueOf(price*64 - bal + 1) + "원)");
+                        }
+                    }
+                }
+            }
+        } else if(e.getView().getTitle().contains("[재료]")) {
+            e.setCancelled(true);
+            if(e.getClick().equals(ClickType.LEFT)) {
+                ItemStack item = e.getCurrentItem();
+                if(item != null && item.getType() == Material.ARROW && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().hasLore()) {
+                    if(ChatColor.stripColor(item.getItemMeta().getDisplayName()).equals("돌아가기")) {
+                        for(String line : item.getItemMeta().getLore()) {
+                            e.getWhoClicked().openInventory(Objects.requireNonNull(Cache.getShop(line)));
+                            break;
                         }
                     }
                 }
