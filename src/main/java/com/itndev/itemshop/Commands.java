@@ -16,6 +16,7 @@ import java.util.*;
 
 public class Commands implements CommandExecutor {
 
+    private static String publicsplitter = ":[=-=]:";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -264,18 +265,19 @@ public class Commands implements CommandExecutor {
                         Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
                     }
                 } else if(args[0].equalsIgnoreCase("판매토글")) {
-                    if(args.length < 3) {
+                    if (args.length < 3) {
                         Utils.sendhelp(p);
+                        return false;
                     }
                     String shopname = args[1];
                     String linenumb = args[2];
                     String key = shopname + linenumb;
-                    if(!Storage.shopline.containsKey(shopname)) {
+                    if (!Storage.shopline.containsKey(shopname)) {
                         Utils.sendmsg(p, "해당 상점 " + shopname + " 은 존재하지 않습니다");
                         return false;
                     }
-                    if(Storage.shoplineprice.containsKey(key)) {
-                        if(Storage.issellshop.containsKey(key)) {
+                    if (Storage.shoplineprice.containsKey(key)) {
+                        if (Storage.issellshop.containsKey(key)) {
                             Storage.issellshop.remove(key);
                             Utils.sendmsg(p, "해당 상점 " + shopname + "의 " + linenumb + "번을 구매상점으로 설정했습니다");
                         } else {
@@ -286,6 +288,38 @@ public class Commands implements CommandExecutor {
                         Utils.sendmsg(p, "해당 상점 " + shopname + "의 " + linenumb + "번에는 가격이 설정되어 있지 않습니다");
                     }
                     Cache.Refresh(args[1]);
+                } else if(args[1].equalsIgnoreCase("명령어추가")) {
+                    if (args.length < 4) {
+                        Utils.sendhelp(p);
+                        return false;
+                    }
+                    if(!Storage.shopline.containsKey(args[1])) {
+                        Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
+                        return false;
+                    }
+                    if(Storage.shoplinecommand.containsKey(args[1] + publicsplitter + args[2])) {
+                        Utils.sendmsg(p, "해당 상점 " + args[1] + " 의 " + args[2]  + " 에는 이미 다른 명령어가 존재합니다 명령어 삭제 후 다시 추가 바랍니다");
+                        return false;
+                    }
+                    String cmd = Utils.Args2String(args, 3);
+                    Storage.shoplinecommand.put(args[1] + publicsplitter + args[2], cmd);
+                    Utils.sendmsg(p, "해당 상점 " + args[1] + " 의 " + args[2]  + " 에 명령어 " + cmd + " 을 성공적으로 추가했습니다");
+                } else if(args[1].equalsIgnoreCase("명령어제거")) {
+                    if (args.length < 3) {
+                        Utils.sendhelp(p);
+                        return false;
+                    }
+                    if(!Storage.shopline.containsKey(args[1])) {
+                        Utils.sendmsg(p, "해당 상점 " + args[1] + " 은 존재하지 않습니다");
+                        return false;
+                    }
+                    if(!Storage.shoplinecommand.containsKey(args[1] + publicsplitter + args[2])) {
+                        Utils.sendmsg(p, "해당 상점 " + args[1] + " 의 " + args[2]  + " 에는 이미 다른 명령어가 존재하지 않습니다");
+                        return false;
+                    }
+                    String cmd = Storage.shoplinecommand.get(args[1] + publicsplitter + args[2]);
+                    Storage.shoplinecommand.remove(args[1] + publicsplitter + args[2]);
+                    Utils.sendmsg(p, "해당 상점 " + args[1] + " 의 " + args[2]  + " 에 있는 명령어 " + cmd + " 을 삭제했습니다");
                 } else if(args[1].equalsIgnoreCase("도움말")) {
                     Utils.sendhelp(p);
                 } else {

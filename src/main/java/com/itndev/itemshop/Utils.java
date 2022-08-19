@@ -32,6 +32,22 @@ public class Utils {
         }
     }
 
+    public static String Args2String(String[] args, int Start) {
+        String FinalString = "";
+        for(int k = Start; k < args.length; k++) {
+            if(args[k] == null) {
+                break;
+            }
+            if(k == args.length - 1) {
+                FinalString = FinalString + args[k];
+            } else {
+                FinalString = FinalString + args[k] + " ";
+            }
+
+        }
+        return FinalString;
+    }
+
 
     public static ItemMeta AddLore(ItemMeta item, String[] lores) {
         for(int c = 0; c < lores.length; c++) {
@@ -78,6 +94,8 @@ public class Utils {
                 "/아이템상점 판매토글 &7<이름> <칸번호> &8&l:&r 판매상점일시 구매로, 구매상점일시 판매로 변경\n" +
                 "/아이템상점 재료제거 &7<이름> <칸번호> &8&l:&r 해당 상점에 있는 해당 칸번호에 있는 재료를 제거\n" +
                 "/아이템상점 가격제거 &7<이름> <칸번호> &8&l:&r 해당 상점에 있는 해당 칸번호에 있는 가격을 제거\n" +
+                "/아이템상점 명령어추가 &7<이름> <칸번호> <명령어 (-o 로 시작시 op 권한으로 실행)> &8&l:&r 해당 상점에 있는 해당 칸번호에 명령어를 추가\n" +
+                "/아이템상점 명령어제거 &7<이름> <칸번호> &8&l:&r 해당 상점에 있는 해당 칸번호에 있는 명령어를 제거\n" +
                 "/아이템상점 도움말 &8&l:&r 해당 도움말을 보여줌\n");
     }
 

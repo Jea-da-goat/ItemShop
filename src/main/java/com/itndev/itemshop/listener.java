@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -159,6 +160,20 @@ public class listener implements Listener {
                             Utils.sendmsg(p, "돈이 부족합니다 &7(" + String.valueOf(price*64 - bal + 1) + "원)");
                         }
                     }
+                }
+            } else if(Storage.shoplinecommand.containsKey(key)) {
+                String cmd = Storage.shoplinecommand.get(key);
+                Player p = (Player) e.getWhoClicked();
+                if(cmd.startsWith("-o")) {
+                    if(!p.isOp()) {
+                        p.setOp(true);
+                        p.performCommand(cmd.replace("-o ", ""));
+                        p.setOp(false);
+                    } else {
+                        p.performCommand(cmd);
+                    }
+                } else {
+                    p.performCommand(cmd);
                 }
             }
         } else if(e.getView().getTitle().contains("[재료]")) {

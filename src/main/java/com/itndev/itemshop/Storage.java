@@ -25,6 +25,8 @@ public class Storage {
 
     public static HashMap<String, Double> shoplineprice = new HashMap<>();
 
+    public static HashMap<String, String> shoplinecommand = new HashMap<>();
+
     public static HashMap<String, Boolean> issellshop = new HashMap<>();
 
     public static File file = new File(Main.getInstance().getDataFolder(), "LocalStorage.yml");
@@ -88,6 +90,17 @@ public class Storage {
         Storage.getStorage().getConfigurationSection("issellshop.").getKeys(false).forEach(key -> {
             String v = Storage.getStorage().get("issellshop." + key).toString();
             Storage.issellshop.put(key, Boolean.valueOf(v));
+        });
+    }
+    public static void onSaveshoplinecommandData() {
+        for (Map.Entry<String, String> entry : Storage.shoplinecommand.entrySet())
+            Storage.getStorage().set("shoplinecommand." + (String)entry.getKey(), entry.getValue());
+        //saveStorage();
+    }
+    public static void onRestoreshoplinecommandData() {
+        Storage.getStorage().getConfigurationSection("shoplinecommand.").getKeys(false).forEach(key -> {
+            String v = Storage.getStorage().get("shoplinecommand." + key).toString();
+            Storage.shoplinecommand.put(key, v);
         });
     }
     public static void onSaveshoplineData() {

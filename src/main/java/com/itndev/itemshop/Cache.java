@@ -106,6 +106,7 @@ public class Cache {
                     }
                 }
             }
+            CachedShop.remove(ShopName);
             CachedShop.put(ShopName, inv);
         }
             //
