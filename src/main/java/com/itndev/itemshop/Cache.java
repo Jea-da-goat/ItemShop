@@ -3,6 +3,7 @@ package com.itndev.itemshop;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -24,7 +25,8 @@ public class Cache {
             Refresh(ShopName);
         }
         Inventory originalInventory = CachedShop.get(ShopName);
-        Inventory inventory = Bukkit.createInventory(null, originalInventory.getSize(), "[상점] " + ShopName);
+        InventoryGUIHolder inventoryGUIHolder = new InventoryGUIHolder(ShopName, InventoryGUIHolder.TYPE_Shop, originalInventory.getSize(), InventoryUtils.getShopDisplayName(ShopName));
+        Inventory inventory = inventoryGUIHolder.getInventory();
         inventory.setContents(originalInventory.getContents());
         return inventory;
     }
@@ -32,7 +34,9 @@ public class Cache {
     public static void Refresh(String ShopName) {
         if(Storage.shopline.containsKey(ShopName) && !Storage.shopline.get(ShopName).equals(0)) {
             int lines = Storage.shopline.get(ShopName);
-            Inventory inv = Bukkit.createInventory(null, lines * 9, "[상점] " + ShopName);
+            //Inventory inv = Bukkit.createInventory(null, lines * 9, "[상점] " + ShopName);
+            InventoryGUIHolder inventoryGUIHolder = new InventoryGUIHolder(ShopName, InventoryGUIHolder.TYPE_Shop, lines * 9, InventoryUtils.getShopDisplayName(ShopName));
+            Inventory inv = inventoryGUIHolder.getInventory();
 
             for (int c = 0; c < lines * 9; c++) {
                 int k = c + 1;

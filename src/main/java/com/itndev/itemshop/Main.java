@@ -48,6 +48,9 @@ public final class Main extends JavaPlugin {
         if(Storage.getStorage().contains("shoplinecommand.")) {
             Storage.onRestoreshoplinecommandData();
         }
+        if(Storage.getStorage().contains("shoplinedisplayname.")) {
+            Storage.onRestoreshoplinedisplaynameData();
+        }
 
 
 
@@ -81,6 +84,9 @@ public final class Main extends JavaPlugin {
         }
         if(!Storage.shoplinecommand.isEmpty()) {
             Storage.onSaveshoplinecommandData();
+        }
+        if(!Storage.shoplinedisplayname.isEmpty()) {
+            Storage.onSaveshoplinedisplaynameData();
         }
         Storage.saveStorage();
     }
